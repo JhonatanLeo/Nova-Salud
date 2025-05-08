@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Salud - Gestión de Inventario</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Barra de navegación lateral -->
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="img/logo.png" alt="Nova Salud Logo">
+                <h2>Nova Salud</h2>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="index.html">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Panel de Control</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="inventario.html">
+                        <i class="fas fa-boxes"></i>
+                        <span>Inventario</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="pos.html">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Punto de Venta</span>
+                    </a>
+                </li>
+                
+            </ul>
+        </nav>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Cabecera -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="toggle-sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-right">
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">0</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="img/user.png" alt="Usuario">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Contenido de inventario -->
+            <div class="inventory-page">
+                <div class="page-header">
+                    <a href="index.html" class="back-link">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                    <h1>Gestión de Inventario</h1>
+                </div>
+                
+                <div class="inventory-controls">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="inventory-search" placeholder="Buscar por nombre o código...">
+                    </div>
+                    
+                    <div class="controls-right">
+                        <div class="filter-dropdown">
+                            <select id="category-filter">
+                                <option value="all">Todos</option>
+                                <option value="analgesicos">Analgésicos</option>
+                                <option value="antibioticos">Antibióticos</option>
+                                <option value="antialergicos">Antialérgicos</option>
+                                <option value="dermatologicos">Dermatológicos</option>
+                                <option value="higiene">Higiene</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                        
+                        <button class="btn btn-primary" id="add-product-btn">
+                            <i class="fas fa-plus"></i> Nuevo Producto
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>CÓDIGO</th>
+                                <th>NOMBRE</th>
+                                <th>CATEGORÍA</th>
+                                <th>STOCK</th>
+                                <th>PRECIO UNIT.</th>
+                                <th>PROVEEDOR</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MED015</td>
+                                <td>Alcohol 96° 250ml</td>
+                                <td>Higiene</td>
+                                <td><span class="stock-badge">45 unidades</span></td>
+                                <td>S/. 3.50</td>
+                                <td>Farma Perú</td>
+                                <td class="actions">
+                                    <button class="btn-icon edit-btn"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn-icon restock-btn"><i class="fas fa-plus-circle"></i> Reabastecer</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MED003</td>
+                                <td>Amoxicilina 500mg</td>
+                                <td>Antibióticos</td>
+                                <td><span class="stock-badge">60 unidades</span></td>
+                                <td>S/. 1.80</td>
+                                <td>Farma Perú</td>
+                                <td class="actions">
+                                    <button class="btn-icon edit-btn"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn-icon restock-btn"><i class="fas fa-plus-circle"></i> Reabastecer</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MED008</td>
+                                <td>Aspirina 100mg</td>
+                                <td>Analgésicos</td>
+                                <td><span class="stock-badge">150 unidades</span></td>
+                                <td>S/. 0.30</td>
+                                <td>Distribuidora Médica</td>
+                                <td class="actions">
+                                    <button class="btn-icon edit-btn"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn-icon restock-btn"><i class="fas fa-plus-circle"></i> Reabastecer</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MED019</td>
+                                <td>Atorvastatina 20mg</td>
+                                <td>Analgésicos</td>
+                                <td><span class="stock-badge">50 unidades</span></td>
+                                <td>S/. 1.30</td>
+                                <td>Distribuidora Médica</td>
+                                <td class="actions">
+                                    <button class="btn-icon edit-btn"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn-icon restock-btn"><i class="fas fa-plus-circle"></i> Reabastecer</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MED009</td>
+                                <td>Azitromicina 500mg</td>
+                                <td>Antibióticos</td>
+                                <td><span class="stock-badge">40 unidades</span></td>
+                                <td>S/. 4.00</td>
+                                <td>Química Suiza</td>
+                                <td class="actions">
+                                    <button class="btn-icon edit-btn"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn-icon restock-btn"><i class="fas fa-plus-circle"></i> Reabastecer</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MED006</td>
+                                <td>Cetirizina 10mg</td>
+                                <td>Antialérgicos</td>
+                                <td><span class="stock-badge">110 unidades</span></td>
+                                <td>S/. 1.00</td>
+                                <td>Farma Perú</td>
+                                <td class="actions">
+                                    <button class="btn-icon edit-btn"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn-icon restock-btn"><i class="fas fa-plus-circle"></i> Reabastecer</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MED013</td>
+                                <td>Clotrimazol crema 1%</td>
+                                <td>Dermatológicos</td>
+                                <td><span class="stock-badge">25 unidades</span></td>
+                                <td>S/. 6.00</td>
+                                <td>Distribuidora Médica</td>
+                                <td class="actions">
+                                    <button class="btn-icon edit-btn"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn-icon restock-btn"><i class="fas fa-plus-circle"></i> Reabastecer</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Modal para añadir/editar producto -->
+            <div class="modal" id="product-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Añadir Nuevo Producto</h2>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="product-form">
+                            <div class="form-group">
+                                <label for="product-code">Código</label>
+                                <input type="text" id="product-code" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-name">Nombre del Producto</label>
+                                <input type="text" id="product-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-category">Categoría</label>
+                                <select id="product-category" required>
+                                    <option value="">Seleccionar categoría</option>
+                                    <option value="analgesicos">Analgésicos</option>
+                                    <option value="antibioticos">Antibióticos</option>
+                                    <option value="antialergicos">Antialérgicos</option>
+                                    <option value="dermatologicos">Dermatológicos</option>
+                                    <option value="higiene">Higiene</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="product-stock">Stock Inicial</label>
+                                    <input type="number" id="product-stock" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="product-price">Precio Unitario (S/.)</label>
+                                    <input type="number" id="product-price" min="0" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-supplier">Proveedor</label>
+                                <input type="text" id="product-supplier" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-description">Descripción (opcional)</label>
+                                <textarea id="product-description"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary cancel-btn">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Producto</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts con soporte para módulos ES -->
+    <script src="js/ui.js" type="module"></script>
+    <script src="js/auth.js" type="module"></script>
+    <script src="js/inventory.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Salud - Sistema de Gestión</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Barra de navegación lateral -->
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="img/logo.png" alt="Nova Salud Logo">
+                <h2>Nova Salud</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active">
+                    <a href="index.html">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Panel de Control</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventario.html">
+                        <i class="fas fa-boxes"></i>
+                        <span>Inventario</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="pos.html">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Punto de Venta</span>
+                    </a>
+                </li>
+            
+            </ul>
+        </nav>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Cabecera -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="toggle-sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-right">
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">0</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="img/user.png" alt="Usuario">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Contenido del panel de control -->
+            <div class="dashboard">
+                <h1>Panel de Control</h1>
+                
+                <!-- Tarjetas de estadísticas -->
+                <div class="stats-cards">
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>Ventas del día</h3>
+                            <h2>S/. 121.07</h2>
+                            <p class="trend positive">+325.7% <span>vs ayer</span></p>
+                        </div>
+                        <div class="card-icon green">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>Productos vendidos</h3>
+                            <h2>5</h2>
+                            <p class="trend positive">+5.2% <span>vs ayer</span></p>
+                        </div>
+                        <div class="card-icon blue">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>Clientes atendidos</h3>
+                            <h2>1</h2>
+                            <p class="trend positive">+8.1% <span>vs ayer</span></p>
+                        </div>
+                        <div class="card-icon purple">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>Alertas de stock</h3>
+                            <h2>0</h2>
+                            <p class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></p>
+                        </div>
+                        <div class="card-icon red">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Secciones de datos -->
+                <div class="data-sections">
+                    <!-- Ventas recientes -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h2>Ventas recientes</h2>
+                            <a href="#" class="view-all">Ver todas</a>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>CLIENTE</th>
+                                        <th>PRODUCTOS</th>
+                                        <th>TOTAL</th>
+                                        <th>ESTADO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#F20250507-011723</td>
+                                        <td>Ana Gómez</td>
+                                        <td>5</td>
+                                        <td>S/. 121.07</td>
+                                        <td><span class="status completed">Completada</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#F20250506-214437</td>
+                                        <td>Cliente no registrado</td>
+                                        <td>3</td>
+                                        <td>S/. 28.44</td>
+                                        <td><span class="status completed">Completada</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Productos con stock bajo -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h2>Productos con stock bajo</h2>
+                            <a href="#" class="view-all">Ver todos</a>
+                        </div>
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <p>No hay productos con stock bajo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts con soporte para módulos ES -->
+    <script src="js/ui.js" type="module"></script>
+    <script src="js/auth.js" type="module"></script>
+    <script src="js/dashboard.js" type="module"></script>
+</body>
+</html>
