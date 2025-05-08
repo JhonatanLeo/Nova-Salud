@@ -14,7 +14,7 @@ import {
   addNotification, 
   loadNotifications,
   renderNotificationsMenu 
-} from './notifications_v2.js' // Usando versión completamente nueva sin supabase.raw
+} from './notifications_v2.js?v=20250508' // Usando versión completamente nueva sin supabase.raw con versión para romper caché
 
 
 // Variables globales
@@ -463,11 +463,23 @@ function updateTable() {
   });
 }
 
-// Mostrar modal para editar stock (función placeholder)
+// Mostrar modal para editar stock - redirección efectiva a la página de inventario
 function showEditStockModal(product) {
-  // Esta función sería implementada en una versión completa
-  // Por ahora solo mostraremos un toast
-  showToast(`Editar stock de ${product.nombre || 'producto'} (Función en desarrollo)`, "info");
+  console.log(`Redirigiendo a edición de producto: ${product.id} - ${product.nombre}`);
+  // Forzar la redirección sin posibilidad de ser bloqueada
+  try {
+    // Primero mostramos un toast para indicar que se está redirigiendo
+    showToast(`Redirigiendo a edición de ${product.nombre || 'producto'}...`, "info");
+    
+    // Pequeño retraso para que se alcance a ver el toast
+    setTimeout(() => {
+      window.location.href = `inventario.html?edit=${product.id}`;
+    }, 500);
+  } catch (error) {
+    console.error("Error al redirigir:", error);
+    // Plan B: abrir en una nueva ventana
+    window.open(`inventario.html?edit=${product.id}`, '_blank');
+  }
 }
 
 // Determinar clase de alerta según nivel de stock

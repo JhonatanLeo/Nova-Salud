@@ -1,7 +1,8 @@
 // Importamos desde los archivos correctos
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/+esm"
 import { SUPABASE_URL, SUPABASE_KEY, formatCurrency, generateSaleId } from "./config.js"
-import { showToast, addNotification, loadNotifications } from "./notifications.js"
+import { showToast, addNotification, loadNotifications } from "./notifications_v2.js?v=20250508"
+import { refreshNotifications } from "./notifications-init.js?v=20250508"
 
 // Crear cliente de Supabase
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
@@ -826,6 +827,9 @@ async function confirmSale() {
     const titulo = `Nueva venta #${ventaCreada.numero_factura}`
     const mensaje = `Se ha completado una venta por ${montoFormateado} a ${clienteNombre}`
     addNotification(titulo, mensaje, "sale", false) // No mostrar como toast porque ya mostramos uno
+    
+    // Actualizar la campana de notificaciones
+    refreshNotifications()
 
     // Cerrar modal
     hideModal("sale-confirmation-modal")
