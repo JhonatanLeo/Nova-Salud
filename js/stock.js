@@ -14,7 +14,7 @@ import {
   addNotification, 
   loadNotifications,
   renderNotificationsMenu 
-} from './notifications_fixed.js' // Usando versión corregida sin supabase.raw
+} from './notifications_v2.js' // Usando versión completamente nueva sin supabase.raw
 
 
 // Variables globales

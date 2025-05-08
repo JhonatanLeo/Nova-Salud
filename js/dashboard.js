@@ -528,6 +528,44 @@ async function loadDashboardData() {
           // Ya tenemos nombres de clientes o no hay campo cliente_id
           recentSales = recentSalesData;
         }
+        
+        // Ahora, para cada venta, obtener la cantidad de productos
+        // Obtener los IDs de ventas
+        const ventaIds = recentSales.map(v => v.id);
+        
+        try {
+          // Consultar los detalles de ventas para cada venta
+          const { data: detallesData, error: detallesError } = await supabase
+            .from("detalles_venta")
+            .select("venta_id, cantidad")
+            .in("venta_id", ventaIds);
+            
+          if (detallesError) {
+            console.error("Error al obtener detalles de ventas:", detallesError);
+          } else if (detallesData && detallesData.length > 0) {
+            // Agrupar detalles por venta_id y contar
+            const detallesPorVenta = {};
+            
+            // Agrupar detalles y sumar cantidades
+            detallesData.forEach(detalle => {
+              if (!detallesPorVenta[detalle.venta_id]) {
+                detallesPorVenta[detalle.venta_id] = 0;
+              }
+              // Sumar la cantidad de ese producto
+              detallesPorVenta[detalle.venta_id] += (detalle.cantidad || 1);
+            });
+            
+            // Actualizar cada venta con la cantidad de productos
+            recentSales = recentSales.map(venta => ({
+              ...venta,
+              productos_count: detallesPorVenta[venta.id] || 0
+            }));
+            
+            console.log("Cantidades de productos por venta:", detallesPorVenta);
+          }
+        } catch (detallesError) {
+          console.error("Error al procesar detalles de venta:", detallesError);
+        }
       } catch (recentSalesError) {
         console.error("Error grave en ventas recientes:", recentSalesError);
         recentSales = [];
@@ -680,7 +718,7 @@ function updateDashboardUI(data) {
         
         // Productos (cantidad)
         const tdProductos = document.createElement("td")
-        tdProductos.textContent = sale.detalles_venta?.count || 0
+        tdProductos.textContent = sale.productos_count || 0
         tr.appendChild(tdProductos)
         
         // Total
