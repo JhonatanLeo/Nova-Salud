@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Salud - Control de Stock</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .stock-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-btn:hover {
+            background-color: var(--bg-lighter);
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+        
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255,255,255,0.2);
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .search-container input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+        }
+        
+        .stock-table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+            border-radius: var(--radius);
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .stock-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-end;
+        }
+        
+        .stock-action-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stock-action-btn:hover {
+            background-color: var(--info-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stock-action-btn.download {
+            background-color: var(--success-color);
+        }
+        
+        .stock-action-btn.download:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .category-badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: var(--radius);
+            font-size: 12px;
+            background-color: rgba(var(--secondary-rgb), 0.1);
+            color: var(--secondary-color);
+        }
+        
+        #stock-table th[data-sortable] {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        #stock-table th[data-sortable]:hover {
+            background-color: var(--bg-light);
+        }
+        
+        #stock-table th[data-sortable]::after {
+            content: "↕";
+            position: absolute;
+            right: 8px;
+            color: var(--text-light);
+            opacity: 0.5;
+        }
+        
+        #stock-table th[data-sortable].sort-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        
+        #stock-table th[data-sortable].sort-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: var(--radius);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(var(--primary-rgb), 0.2);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Barra de navegación lateral -->
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="img/logo.png" alt="Nova Salud Logo">
+                <h2>Nova Salud</h2>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="index.html">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Panel de Control</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventario.html">
+                        <i class="fas fa-boxes"></i>
+                        <span>Inventario</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="pos.html">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Punto de Venta</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="stock.html">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Alertas de Stock</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="ventas.html">
+                        <i class="fas fa-cart-arrow-down"></i>
+                        <span>Ventas</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Cabecera -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="toggle-sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-right">
+                    <div class="notifications">
+                        <i class="fas fa-bell" id="toggle-notifications"></i>
+                        <span class="badge">0</span>
+                        <!-- Menú desplegable de notificaciones -->
+                        <div class="notifications-menu"><!-- Se llenará dinámicamente --></div>
+                    </div>
+                    <div class="user-profile">
+                        <img src="img/user.png" alt="Usuario">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Contenido de alertas de stock -->
+            <div class="content">
+                <h1>Alertas de Stock</h1>
+                <p class="description">Gestiona los productos con niveles de stock bajo o crítico.</p>
+                
+                <!-- Filtros de stock -->
+                <div class="stock-filters">
+                    <button class="filter-btn active" data-filter="all">
+                        <span>Todos</span>
+                        <span class="filter-badge">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="critical">
+                        <i class="fas fa-times-circle" style="color: var(--danger-color);"></i>
+                        <span>Sin stock</span>
+                        <span class="filter-badge">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="danger">
+                        <i class="fas fa-exclamation-circle" style="color: var(--danger-color);"></i>
+                        <span>Crítico</span>
+                        <span class="filter-badge">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="warning">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>
+                        <span>Bajo</span>
+                        <span class="filter-badge">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="alert">
+                        <i class="fas fa-info-circle" style="color: var(--info-color);"></i>
+                        <span>Alerta</span>
+                        <span class="filter-badge">0</span>
+                    </button>
+                </div>
+                
+                <!-- Buscador -->
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="stock-search" placeholder="Buscar producto por nombre, código o categoría...">
+                </div>
+                
+                <!-- Acciones de stock -->
+                <div class="stock-actions">
+                    <button class="stock-action-btn download" id="export-excel">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Exportar a Excel</span>
+                    </button>
+                </div>
+                
+                <!-- Tabla de stock -->
+                <div class="stock-table-container">
+                    <table id="stock-table">
+                        <thead>
+                            <tr>
+                                <th data-sortable="nombre">PRODUCTO</th>
+                                <th data-sortable="codigo">CÓDIGO</th>
+                                <th data-sortable="stock">STOCK ACTUAL</th>
+                                <th data-sortable="stock_minimo">STOCK MÍNIMO</th>
+                                <th data-sortable="categoria">CATEGORÍA</th>
+                                <th>ÚLTIMO MOVIMIENTO</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                    
+                    <!-- Overlay de carga -->
+                    <div class="loading-overlay">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+                
+                <!-- Estado vacío -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <p>¡Genial! No hay productos con stock bajo</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/stock.js?v=1.0.1"></script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Salud - Historial de Ventas</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .ventas-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-btn:hover {
+            background-color: var(--bg-lighter);
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+        
+        .date-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .date-filters input {
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        
+        .date-filters label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            gap: 5px;
+        }
+        
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .search-container input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+        }
+        
+        .ventas-table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+            border-radius: var(--radius);
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .ventas-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-end;
+        }
+        
+        .ventas-action-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ventas-action-btn:hover {
+            background-color: var(--info-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .ventas-action-btn.download {
+            background-color: var(--success-color);
+        }
+        
+        .ventas-action-btn.download:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: var(--radius);
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.completed {
+            background-color: rgba(var(--success-rgb), 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(var(--success-rgb), 0.3);
+        }
+        
+        .status-badge.pending {
+            background-color: rgba(var(--warning-rgb), 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(var(--warning-rgb), 0.3);
+        }
+        
+        .status-badge.cancelled {
+            background-color: rgba(var(--danger-rgb), 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(var(--danger-rgb), 0.3);
+        }
+        
+        #ventas-table th[data-sortable] {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        #ventas-table th[data-sortable]:hover {
+            background-color: var(--bg-light);
+        }
+        
+        #ventas-table th[data-sortable]::after {
+            content: "↕";
+            position: absolute;
+            right: 8px;
+            color: var(--text-light);
+            opacity: 0.5;
+        }
+        
+        #ventas-table th[data-sortable].sort-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        
+        #ventas-table th[data-sortable].sort-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: var(--radius);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(var(--primary-rgb), 0.2);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .view-details-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: rgba(var(--primary-rgb), 0.1);
+            color: var(--primary-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .view-details-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        /* Modal de detalles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 10;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: var(--danger-color);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background-color: white;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Detalles de venta en modal */
+        .sale-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .sale-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sale-info-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+        
+        .sale-info-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .sale-items {
+            margin-top: 20px;
+        }
+        
+        .sale-items h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: var(--text-dark);
+        }
+        
+        .sale-items table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .sale-items th,
+        .sale-items td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        
+        .sale-items th {
+            font-weight: 600;
+            color: var(--text-light);
+            background-color: var(--bg-lighter);
+        }
+        
+        .sale-items tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .sale-totals {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        
+        .sale-total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .sale-total-row.final {
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Barra de navegación lateral -->
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="img/logo.png" alt="Nova Salud Logo">
+                <h2>Nova Salud</h2>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="index.html">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Panel de Control</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="inventario.html">
+                        <i class="fas fa-boxes"></i>
+                        <span>Inventario</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="pos.html">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Punto de Venta</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="stock.html">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Alertas de Stock</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="ventas.html">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Historial de Ventas</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Cabecera -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="toggle-sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div class="header-right">
+                    <div class="notifications">
+                        <i class="fas fa-bell" id="toggle-notifications"></i>
+                        <span class="badge">0</span>
+                        <!-- Menú desplegable de notificaciones -->
+                        <div class="notifications-menu"><!-- Se llenará dinámicamente --></div>
+                    </div>
+                    <div class="user-profile">
+                        <img src="img/user.png" alt="Usuario">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Contenido de ventas -->
+            <div class="content">
+                <h1>Historial de Ventas</h1>
+                <p class="description">Consulta y gestiona todas las ventas realizadas.</p>
+                
+                <!-- Filtros de estado -->
+                <div class="ventas-filters">
+                    <button class="filter-btn active" data-filter="all">
+                        <span>Todas las ventas</span>
+                    </button>
+                    <button class="filter-btn" data-filter="completed">
+                        <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                        <span>Completadas</span>
+                    </button>
+                    <button class="filter-btn" data-filter="pending">
+                        <i class="fas fa-clock" style="color: var(--warning-color);"></i>
+                        <span>Pendientes</span>
+                    </button>
+                    <button class="filter-btn" data-filter="cancelled">
+                        <i class="fas fa-times-circle" style="color: var(--danger-color);"></i>
+                        <span>Canceladas</span>
+                    </button>
+                </div>
+                
+                <!-- Filtros de fecha -->
+                <div class="date-filters">
+                    <label>
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Desde:</span>
+                        <input type="date" id="date-from">
+                    </label>
+                    <label>
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Hasta:</span>
+                        <input type="date" id="date-to">
+                    </label>
+                    <button class="filter-btn" id="apply-date-filter">
+                        <i class="fas fa-filter"></i>
+                        <span>Aplicar</span>
+                    </button>
+                    <button class="filter-btn" id="reset-date-filter">
+                        <i class="fas fa-undo"></i>
+                        <span>Restablecer</span>
+                    </button>
+                </div>
+                
+                <!-- Buscador -->
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="ventas-search" placeholder="Buscar por número de factura o cliente...">
+                </div>
+                
+                <!-- Acciones de ventas -->
+                <div class="ventas-actions">
+                    <button class="ventas-action-btn download" id="export-excel">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Exportar a Excel</span>
+                    </button>
+                </div>
+                
+                <!-- Tabla de ventas -->
+                <div class="ventas-table-container">
+                    <table id="ventas-table">
+                        <thead>
+                            <tr>
+                                <th data-sortable="fecha">FECHA</th>
+                                <th data-sortable="numero_factura">Nº FACTURA</th>
+                                <th data-sortable="cliente_nombre">CLIENTE</th>
+                                <th data-sortable="total">TOTAL</th>
+                                <th data-sortable="metodo_pago">MÉTODO DE PAGO</th>
+                                <th data-sortable="estado">ESTADO</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                    
+                    <!-- Overlay de carga -->
+                    <div class="loading-overlay">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+                
+                <!-- Estado vacío -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>No se encontraron ventas con los filtros seleccionados</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal de detalles de venta -->
+    <div id="sale-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalles de Venta</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Información general de la venta -->
+                <div class="sale-info">
+                    <div class="sale-info-item">
+                        <span class="sale-info-label">Nº Factura</span>
+                        <span class="sale-info-value" id="sale-factura">F20250507-011723</span>
+                    </div>
+                    <div class="sale-info-item">
+                        <span class="sale-info-label">Fecha</span>
+                        <span class="sale-info-value" id="sale-fecha">07/05/2025 13:45</span>
+                    </div>
+                    <div class="sale-info-item">
+                        <span class="sale-info-label">Cliente</span>
+                        <span class="sale-info-value" id="sale-cliente">Ana Gómez</span>
+                    </div>
+                    <div class="sale-info-item">
+                        <span class="sale-info-label">Estado</span>
+                        <span class="sale-info-value" id="sale-estado"><span class="status-badge completed">Completada</span></span>
+                    </div>
+                    <div class="sale-info-item">
+                        <span class="sale-info-label">Método de Pago</span>
+                        <span class="sale-info-value" id="sale-pago">Efectivo</span>
+                    </div>
+                    <div class="sale-info-item">
+                        <span class="sale-info-label">Vendedor</span>
+                        <span class="sale-info-value" id="sale-vendedor">Juan Pérez</span>
+                    </div>
+                </div>
+                
+                <!-- Items de la venta -->
+                <div class="sale-items">
+                    <h4>Productos</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PRODUCTO</th>
+                                <th>CANTIDAD</th>
+                                <th>PRECIO UNIT.</th>
+                                <th>SUBTOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sale-items-tbody">
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Totales -->
+                <div class="sale-totals">
+                    <div class="sale-total-row">
+                        <span>Subtotal:</span>
+                        <span id="sale-subtotal">S/. 102.60</span>
+                    </div>
+                    <div class="sale-total-row">
+                        <span>IGV (18%):</span>
+                        <span id="sale-igv">S/. 18.47</span>
+                    </div>
+                    <div class="sale-total-row final">
+                        <span>TOTAL:</span>
+                        <span id="sale-total">S/. 121.07</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="ventas-action-btn" id="print-sale">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Exportar a Excel</span>
+                </button>
+                <button class="filter-btn" id="close-modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/ventas.js?v=1.0.1"></script>
+</body>
+</html>

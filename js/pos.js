@@ -1,6 +1,7 @@
 // Importamos desde los archivos correctos
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/+esm"
 import { SUPABASE_URL, SUPABASE_KEY, formatCurrency, generateSaleId } from "./config.js"
+import { showToast, addNotification, loadNotifications } from "./notifications.js"
 
 // Crear cliente de Supabase
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
@@ -31,44 +32,7 @@ function hideLoading() {
   }
 }
 
-function showToast(message, type = "info") {
-  // Buscar toast existente
-  let toastContainer = document.querySelector(".toast-container")
-
-  // Crear container si no existe
-  if (!toastContainer) {
-    toastContainer = document.createElement("div")
-    toastContainer.className = "toast-container"
-    document.body.appendChild(toastContainer)
-  }
-
-  // Crear nuevo toast
-  const toast = document.createElement("div")
-  toast.className = `toast ${type}`
-  toast.innerHTML = `
-    <div class="toast-content">
-      <i class="fas ${type === "success" ? "fa-check-circle" : type === "error" ? "fa-exclamation-circle" : "fa-info-circle"}"></i>
-      <p>${message}</p>
-    </div>
-    <button class="close-toast">&times;</button>
-  `
-
-  // Añadir toast al contenedor
-  toastContainer.appendChild(toast)
-
-  // Cerrar al hacer clic en el botón
-  toast.querySelector(".close-toast").addEventListener("click", () => {
-    toast.remove()
-  })
-
-  // Desaparecer automáticamente después de 5 segundos
-  setTimeout(() => {
-    toast.classList.add("hide")
-    setTimeout(() => {
-      toast.remove()
-    }, 300)
-  }, 5000)
-}
+// Función showToast ahora se importa desde notifications.js
 
 // Nota: formatCurrency ahora se importa desde config.js
 
@@ -811,29 +775,57 @@ async function confirmSale() {
         throw stockError
       }
 
-      // Registrar movimiento de inventario
-      const movimientoData = {
-        producto_id: item.id,
-        tipo_movimiento: "Salida",
-        cantidad: item.quantity,
-        motivo: "Venta",
-        usuario_id: userData.id,
-        documento_referencia: ventaCreada.numero_factura,
-        fecha: new Date().toISOString(),
-      }
+      // Registrar movimiento de inventario - Verificamos primero si el usuario existe
+      try {
+        // Comprobar si el usuario_id es válido y existe en la tabla users
+        const { data: userExists, error: userError } = await supabase
+          .from("users")
+          .select("id")
+          .eq("id", userData.id)
+          .single()
+        
+        let usuarioId = userData.id
+        
+        // Si hay error o no se encontró el usuario, usamos un ID de sistema predeterminado
+        if (userError || !userExists) {
+          console.warn("Usuario no encontrado en BD, utilizando ID de sistema")
+          usuarioId = null // Omitiremos el campo usuario_id para que use el valor por defecto
+        }
+        
+        const movimientoData = {
+          producto_id: item.id,
+          tipo_movimiento: "Salida",
+          cantidad: item.quantity,
+          motivo: "Venta",
+          // Solo incluimos usuario_id si es válido
+          ...(usuarioId ? { usuario_id: usuarioId } : {}),
+          documento_referencia: ventaCreada.numero_factura,
+          fecha: new Date().toISOString(),
+        }
 
-      console.log("Registrando movimiento de inventario:", movimientoData)
+        console.log("Registrando movimiento de inventario:", movimientoData)
 
-      const { error: movementError } = await supabase.from("movimientos_inventario").insert(movimientoData)
+        const { error: movementError } = await supabase.from("movimientos_inventario").insert(movimientoData)
 
-      if (movementError) {
-        console.error("Error al registrar movimiento:", movementError)
-        // No lanzamos error para que la venta continúe
+        if (movementError) {
+          console.error("Error al registrar movimiento:", movementError)
+          // No lanzamos error para que la venta continúe
+        }
+      } catch (movError) {
+        console.error("Error al procesar movimiento de inventario:", movError)
+        // No interrumpimos la venta por error en movimientos
       }
     }
 
     hideLoading()
     showToast("Venta procesada correctamente", "success")
+    
+    // Crear notificación de venta
+    const montoFormateado = formatCurrency(ventaCreada.total)
+    const clienteNombre = customerName || "Cliente no registrado"
+    const titulo = `Nueva venta #${ventaCreada.numero_factura}`
+    const mensaje = `Se ha completado una venta por ${montoFormateado} a ${clienteNombre}`
+    addNotification(titulo, mensaje, "sale", false) // No mostrar como toast porque ya mostramos uno
 
     // Cerrar modal
     hideModal("sale-confirmation-modal")
@@ -860,11 +852,17 @@ async function confirmSale() {
 
 // Imprimir ticket
 function printTicket(venta, items) {
-  // Crear ventana de impresión
-  const printWindow = window.open("", "_blank", "width=700,height=500")
-
-  // Contenido del ticket
-  printWindow.document.write(`
+  try {
+    // Crear ventana de impresión
+    const printWindow = window.open("", "_blank", "width=700,height=500")
+    
+    // Verificar si la ventana se abrió correctamente
+    if (!printWindow) {
+      throw new Error("No se pudo abrir la ventana de impresión. Por favor, permita las ventanas emergentes para este sitio.")
+    }
+    
+    // Contenido del ticket
+    printWindow.document.write(`
     <!DOCTYPE html>
     <html>
     <head>
@@ -987,6 +985,16 @@ function printTicket(venta, items) {
   `)
 
   printWindow.document.close()
+  
+  // Imprimir después de cargar
+  printWindow.onload = function() {
+    printWindow.print()
+    setTimeout(() => printWindow.close(), 1000)
+  }
+  } catch (error) {
+    console.error("Error al imprimir ticket:", error)
+    showToast("Error al imprimir ticket: " + error.message, "error")
+  }
 }
 
 // Modificar la función searchProducts para eliminar el espacio en blanco
@@ -1026,8 +1034,43 @@ document.addEventListener("click", (event) => {
   }
 })
 
-// Inicializar página de POS
-document.addEventListener("DOMContentLoaded", async () => {
+// Cuando el DOM esté cargado
+document.addEventListener("DOMContentLoaded", async function () {
+  console.log("DOM cargado, inicializando POS system...")
+
+  // Cargar productos y clientes
+  await loadPOSProducts()
+  await loadClients()
+  
+  // Inicializar sistema de notificaciones
+  loadNotifications()
+  
+  // Configurar funcionalidad de toggle para el menú de notificaciones
+  const toggleNotifications = document.getElementById("toggle-notifications")
+  if (toggleNotifications) {
+    toggleNotifications.addEventListener("click", function(e) {
+      e.stopPropagation()
+      const menu = document.querySelector(".notifications-menu")
+      if (menu) {
+        menu.classList.toggle("active")
+        
+        // Si el menú está activo, renderizar las notificaciones
+        if (menu.classList.contains("active")) {
+          // Esta función viene del archivo notifications.js
+          renderNotificationsMenu()
+        }
+      }
+    })
+    
+    // Cerrar el menú al hacer clic fuera de él
+    document.addEventListener("click", function(e) {
+      const menu = document.querySelector(".notifications-menu")
+      if (menu && !e.target.closest(".notifications") && menu.classList.contains("active")) {
+        menu.classList.remove("active")
+      }
+    })
+  }
+
   // Verificar si estamos en la página de POS
   if (document.querySelector(".pos-container")) {
     console.log("Inicializando página de POS...")

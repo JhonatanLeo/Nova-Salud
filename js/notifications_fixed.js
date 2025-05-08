@@ -256,7 +256,6 @@ async function loadAlerts() {
 
   try {
     showLoading("Cargando alertas...")
-    console.log("🔄 Cargando alertas (versión corregida)")
 
     // SOLUCIÓN SIMPLE: Obtener todos los productos y filtrar localmente
     const { data: allProducts, error: productError } = await supabase
@@ -278,7 +277,7 @@ async function loadAlerts() {
       return
     }
     
-    console.log(`✅ Se encontraron ${allProducts.length} productos`)
+    console.log(`Se encontraron ${allProducts.length} productos`)
     
     // Filtrar productos con stock bajo
     const lowStockProducts = allProducts.filter(product => {
@@ -288,22 +287,21 @@ async function loadAlerts() {
       return product.stock <= 5  // Valor por defecto para productos sin stock_minimo
     })
     
-    console.log(`📊 Se encontraron ${lowStockProducts.length} productos con stock bajo`)
-
-    // Cargar productos próximos a vencer
+    console.log(`Se encontraron ${lowStockProducts.length} productos con stock bajo`)
+    
+    // Calcular productos próximos a vencer
     const today = new Date()
     const nextMonth = new Date(today)
     nextMonth.setMonth(nextMonth.getMonth() + 1)
-
-    const { data: expiringProducts, error: expiringError } = await supabase
-      .from("productos")
-      .select("*")
-      .lt("fecha_vencimiento", nextMonth.toISOString())
-      .gt("fecha_vencimiento", today.toISOString())
-
-    if (expiringError) {
-      console.error("Error al cargar productos próximos a vencer:", expiringError)
-    }
+    
+    const expiringProducts = allProducts.filter(product => {
+      if (!product.fecha_vencimiento) return false
+      
+      const expDate = new Date(product.fecha_vencimiento)
+      return expDate > today && expDate < nextMonth
+    })
+    
+    console.log(`Se encontraron ${expiringProducts.length} productos próximos a vencer`)
 
     // Actualizar UI
     updateAlertsUI({
@@ -428,6 +426,7 @@ function updateAlertsUI(data) {
 
 // Inicializar página de alertas
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("Inicializando notificaciones (versión corregida)")
   // Verificar si estamos en la página de alertas
   if (document.querySelector(".alerts-page")) {
     // Cargar alertas

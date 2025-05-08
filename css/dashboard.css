@@ -1,0 +1,190 @@
+/* Estilos específicos para el dashboard */
+
+/* Badges para niveles de stock */
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: var(--radius);
+  min-width: 30px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stock-badge.normal {
+  background-color: rgba(var(--success-rgb), 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(var(--success-rgb), 0.2);
+}
+
+.stock-badge.alert {
+  background-color: rgba(var(--info-rgb), 0.1);
+  color: var(--info-color);
+  border: 1px solid rgba(var(--info-rgb), 0.2);
+}
+
+.stock-badge.warning {
+  background-color: rgba(var(--warning-rgb), 0.1);
+  color: var(--warning-color);
+  border: 1px solid rgba(var(--warning-rgb), 0.2);
+}
+
+.stock-badge.danger {
+  background-color: rgba(var(--danger-rgb), 0.1);
+  color: var(--danger-color);
+  border: 1px solid rgba(var(--danger-rgb), 0.2);
+}
+
+.stock-badge.critical {
+  background-color: var(--danger-color);
+  color: white;
+  border: 1px solid rgba(var(--danger-rgb), 0.5);
+}
+
+/* Botones de acción en tabla */
+.action-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 4px 8px;
+  border-radius: var(--radius);
+}
+
+.action-btn:hover {
+  color: var(--primary-color);
+  background-color: rgba(var(--primary-color), 0.1);
+}
+
+/* Ajustes para la tabla de productos con stock bajo */
+#low-stock-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#low-stock-table th,
+#low-stock-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+#low-stock-table th {
+  font-weight: 600;
+  color: var(--text-light);
+  background-color: var(--bg-lighter);
+  font-size: 12px;
+}
+
+#low-stock-table td {
+  font-size: 14px;
+}
+
+#low-stock-table tbody tr:hover {
+  background-color: var(--bg-lighter);
+}
+
+/* Estado vacío para cuando no hay productos con stock bajo */
+#empty-low-stock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+  background-color: var(--bg-lighter);
+  border-radius: var(--radius);
+  margin-top: 15px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+#empty-low-stock i {
+  font-size: 36px;
+  margin-bottom: 15px;
+  color: var(--text-lighter);
+  opacity: 0.7;
+}
+
+#empty-low-stock p {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Mejoras para tabla de stock bajo */
+.table-container {
+  margin-top: 15px;
+  overflow-x: auto;
+  border-radius: var(--radius);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+}
+
+#low-stock-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#low-stock-table th {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 12px 15px;
+  background-color: var(--bg-lighter);
+  border-bottom: 2px solid var(--border-color);
+}
+
+#low-stock-table td {
+  padding: 10px 15px;
+  vertical-align: middle;
+}
+
+#low-stock-table tbody tr:hover {
+  background-color: rgba(var(--primary-rgb), 0.03);
+}
+
+/* Animación de carga para la tabla */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#low-stock-table tbody tr {
+  animation: fadeIn 0.3s ease forwards;
+  animation-delay: calc(var(--row-index, 0) * 0.05s);
+  opacity: 0;
+}
+
+/* Estilos para columnas específicas */
+#low-stock-table td:nth-child(3) {
+  text-align: center;
+}
+
+#low-stock-table td:last-child {
+  text-align: right;
+}
+
+/* Mejoras en estilos de acción */
+.action-btn {
+  background-color: rgba(var(--primary-rgb), 0.1);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}

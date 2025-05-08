@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Salud - Punto de Venta</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/notifications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Ocultar los elementos de depuración que aparecen en la parte inferior */
@@ -82,6 +83,18 @@
                         <span>Punto de Venta</span>
                     </a>
                 </li>
+                <li>
+                    <a href="stock.html">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Alertas de Stock</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="ventas.html">
+                        <i class="fas fa-cart-arrow-down"></i>
+                        <span>Ventas</span>
+                    </a>
+                </li>
                
             </ul>
         </nav>
@@ -97,8 +110,10 @@
                 </div>
                 <div class="header-right">
                     <div class="notifications">
-                        <i class="fas fa-bell"></i>
+                        <i class="fas fa-bell" id="toggle-notifications"></i>
                         <span class="badge">0</span>
+                        <!-- Menú desplegable de notificaciones -->
+                        <div class="notifications-menu"><!-- Se llenará dinámicamente --></div>
                     </div>
                     <div class="user-profile">
                         <img src="img/user.png" alt="Usuario">

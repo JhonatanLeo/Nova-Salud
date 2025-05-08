@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Salud - Sistema de Gestión</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -32,6 +33,18 @@
                     <a href="pos.html">
                         <i class="fas fa-cash-register"></i>
                         <span>Punto de Venta</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="stock.html">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Alertas de Stock</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="ventas.html">
+                        <i class="fas fa-cart-arrow-down"></i>
+                        <span>Ventas</span>
                     </a>
                 </li>
             
@@ -97,15 +110,7 @@
                         </div>
                     </div>
                     
-                    <div class="card">
-                        <div class="card-content">
-                            <h3>Alertas de stock</h3>
-                            <h2>0</h2>
-                            <p class="view-details">Ver detalles <i class="fas fa-arrow-right"></i></p>
-                        </div>
-                        <div class="card-icon red">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
+                   
                     </div>
                 </div>
                 
@@ -152,9 +157,28 @@
                     <div class="section">
                         <div class="section-header">
                             <h2>Productos con stock bajo</h2>
-                            <a href="#" class="view-all">Ver todos</a>
+                            <a href="stock.html" class="view-all">Ver todos</a>
                         </div>
-                        <div class="empty-state">
+                        <div class="table-container">
+                            <table id="low-stock-table">
+                                <thead>
+                                    <tr>
+                                        <th>PRODUCTO</th>
+                                        <th>CÓDIGO</th>
+                                        <th>STOCK ACTUAL</th>
+                                        <th>STOCK MÍNIMO</th>
+                                        <th>CATEGORÍA</th>
+                                        <th>ACCIONES</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Los productos con stock bajo se cargarán dinámicamente aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Este div se mostrará cuando no haya productos con stock bajo -->
+                        <div id="empty-low-stock" class="empty-state" style="display: none;">
                             <i class="fas fa-box-open"></i>
                             <p>No hay productos con stock bajo</p>
                         </div>

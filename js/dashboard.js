@@ -15,6 +15,195 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDashboardData()
 })
 
+// Cargar productos con stock bajo
+async function loadLowStockProducts() {
+  console.log("Cargando productos con stock bajo...")
+  try {
+    if (!supabase) {
+      throw new Error("Cliente Supabase no disponible")
+    }
+    
+    // Verificar si existe la sección de stock bajo en el DOM
+    const lowStockSection = document.querySelector(".section:nth-of-type(2)")
+    if (!lowStockSection) {
+      console.warn("No se encontró la sección de stock bajo en el DOM")
+      return []
+    }
+    
+    // Obtener referencia a la tabla y al estado vacío
+    const tableContainer = lowStockSection.querySelector(".table-container")
+    const lowStockTable = document.getElementById("low-stock-table")
+    const emptyState = document.getElementById("empty-low-stock")
+    
+    if (!lowStockTable) {
+      console.warn("No se encontró la tabla de stock bajo en el DOM")
+      return []
+    }
+    
+    const tbody = lowStockTable.querySelector("tbody")
+    if (!tbody) {
+      console.warn("No se encontró el tbody de la tabla de stock bajo")
+      return []
+    }
+    
+    // Primero comprobamos si la tabla tiene las columnas necesarias
+    const { data: columnCheck, error: columnError } = await supabase
+      .from("productos")
+      .select("*")
+      .limit(1)
+    
+    if (columnError) {
+      console.error("Error al verificar estructura de tabla productos:", columnError)
+      throw new Error("Error al verificar estructura de tabla")
+    }
+    
+    console.log("Estructura de la tabla productos:", columnCheck && columnCheck.length > 0 ? Object.keys(columnCheck[0]) : "Sin datos")
+    
+    // Verificar si stock_minimo existe, de lo contrario usamos un enfoque alternativo
+    let query
+    if (columnCheck && columnCheck.length > 0 && columnCheck[0].hasOwnProperty("stock_minimo")) {
+      console.log("Usando campo stock_minimo para consulta")
+      query = supabase
+        .from("productos")
+        .select("id, nombre, codigo, stock, stock_minimo, categoria")
+        .lt("stock", "stock_minimo")
+        .order("stock", { ascending: true })
+        .limit(10)
+    } else {
+      // Fallback: simplemente buscamos productos con stock bajo (menos de 5 unidades)
+      console.log("Usando enfoque alternativo para stock bajo")
+      query = supabase
+        .from("productos")
+        .select("id, nombre, codigo, stock, categoria")
+        .lt("stock", 5)
+        .order("stock", { ascending: true })
+        .limit(10)
+    }
+    
+    const { data: lowStockProducts, error: productsError } = await query
+    
+    if (productsError) {
+      console.error("Error al cargar productos con stock bajo:", productsError)
+      throw new Error("Error al cargar productos con stock bajo")
+    }
+    
+    console.log(`Se encontraron ${lowStockProducts?.length || 0} productos con stock bajo`)
+    
+    // Manejar caso de no haber productos con stock bajo
+    if (!lowStockProducts || lowStockProducts.length === 0) {
+      console.log("No hay productos con stock bajo")
+      tableContainer.style.display = "none"
+      if (emptyState) {
+        emptyState.style.display = "flex"
+      } else {
+        // Si no existe el elemento de estado vacío, lo creamos
+        const newEmptyState = document.createElement("div")
+        newEmptyState.id = "empty-low-stock"
+        newEmptyState.className = "empty-state"
+        newEmptyState.innerHTML = `
+          <i class="fas fa-box-open"></i>
+          <p>No hay productos con stock bajo</p>
+        `
+        lowStockSection.appendChild(newEmptyState)
+      }
+      return []
+    }
+    
+    // Mostrar tabla y ocultar estado vacío
+    tableContainer.style.display = "block"
+    if (emptyState) emptyState.style.display = "none"
+    
+    // Limpiar contenido anterior
+    tbody.innerHTML = ""
+    
+    // Generar filas de la tabla
+    lowStockProducts.forEach(product => {
+      const row = document.createElement("tr")
+      
+      // Calcular clase de alerta según nivel de stock
+      const stockClass = getStockAlertClass(product.stock, product.stock_minimo)
+      
+      // Definir el stock mínimo (usar el campo si existe, o usar 5 como valor por defecto)
+      const stockMinimo = product.stock_minimo !== undefined ? product.stock_minimo : 5
+      
+      row.innerHTML = `
+        <td>${product.nombre || "Sin nombre"}</td>
+        <td>${product.codigo || "S/C"}</td>
+        <td><span class="stock-badge ${stockClass}">${product.stock || 0}</span></td>
+        <td>${stockMinimo}</td>
+        <td>${product.categoria || "Sin categoría"}</td>
+        <td>
+          <button class="action-btn" title="Ver detalle del producto">
+            <i class="fas fa-eye"></i>
+          </button>
+        </td>
+      `
+      
+      // Agregar evento al botón
+      const actionBtn = row.querySelector(".action-btn")
+      actionBtn.addEventListener("click", () => {
+        window.location.href = `inventario.html?product=${product.id}`
+      })
+      
+      tbody.appendChild(row)
+    })
+    
+    // Notificar mediante un toast si hay productos con stock crítico
+    const criticalProducts = lowStockProducts.filter(p => p.stock <= 0)
+    if (criticalProducts.length > 0) {
+      showToast(`¡Alerta! ${criticalProducts.length} producto(s) sin stock disponible`, "error")
+    }
+    
+    return lowStockProducts
+  } catch (error) {
+    console.error("Error en loadLowStockProducts:", error)
+    showToast("Error al cargar productos con stock bajo: " + error.message, "error")
+    
+    // Manejar error mostrando el estado vacío
+    const lowStockSection = document.querySelector(".section:nth-of-type(2)")
+    if (lowStockSection) {
+      const tableContainer = lowStockSection.querySelector(".table-container")
+      if (tableContainer) tableContainer.style.display = "none"
+      
+      const emptyState = document.getElementById("empty-low-stock")
+      if (emptyState) {
+        emptyState.style.display = "flex"
+        emptyState.querySelector("p").textContent = "Error al cargar productos con stock bajo"
+      } else {
+        // Crear el estado vacío con mensaje de error
+        const newEmptyState = document.createElement("div")
+        newEmptyState.id = "empty-low-stock"
+        newEmptyState.className = "empty-state"
+        newEmptyState.innerHTML = `
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>Error al cargar productos con stock bajo</p>
+        `
+        lowStockSection.appendChild(newEmptyState)
+      }
+    }
+    
+    return []
+  }
+}
+
+// Determinar clase de alerta según nivel de stock
+function getStockAlertClass(currentStock, minStock = 5) {
+  // Si no hay stock mínimo definido, usamos 5 como valor por defecto
+  const stockMinimo = minStock || 5
+  
+  if (currentStock <= 0) {
+    return "critical" // Sin stock
+  } else if (currentStock <= stockMinimo * 0.3) {
+    return "danger" // Menos del 30% del stock mínimo
+  } else if (currentStock <= stockMinimo * 0.6) {
+    return "warning" // Entre 30% y 60% del stock mínimo
+  } else if (currentStock < stockMinimo) {
+    return "alert" // Menos que el mínimo pero más del 60%
+  } else {
+    return "normal" // Stock normal
+  }
+}
+
 // Cargar datos del dashboard
 async function loadDashboardData() {
   // Verificar que Supabase esté disponible
@@ -362,6 +551,7 @@ async function loadDashboardData() {
     })
 
     hideLoading()
+    console.log("Dashboard cargado exitosamente")
   } catch (error) {
     console.error("Error al cargar datos del dashboard:", error)
     hideLoading()

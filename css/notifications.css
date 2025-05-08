@@ -1,0 +1,445 @@
+/* Estilos para notificaciones */
+
+/* Contenedor de toasts */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 350px;
+}
+
+/* Toast individual */
+.toast {
+  background-color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  animation: slideIn 0.3s ease forwards;
+  border-left: 4px solid var(--info-color);
+  min-width: 300px;
+  max-width: 100%;
+}
+
+.toast.success {
+  border-left-color: var(--success-color);
+}
+
+.toast.error {
+  border-left-color: var(--danger-color);
+}
+
+.toast.warning {
+  border-left-color: var(--warning-color);
+}
+
+.toast-content {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.toast-content i {
+  font-size: 20px;
+  margin-right: 12px;
+  color: var(--info-color);
+}
+
+.toast.success .toast-content i {
+  color: var(--success-color);
+}
+
+.toast.error .toast-content i {
+  color: var(--danger-color);
+}
+
+.toast.warning .toast-content i {
+  color: var(--warning-color);
+}
+
+.toast-content p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.close-toast {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  transition: color 0.2s;
+}
+
+.close-toast:hover {
+  color: var(--text-dark);
+}
+
+.toast.hide {
+  animation: slideOut 0.3s ease forwards;
+}
+
+/* Menú de notificaciones desplegable */
+.notifications-menu {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  width: 350px;
+  background-color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-in-out;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.notifications-menu.active {
+  max-height: 500px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.notifications-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.mark-all-read {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+}
+
+.mark-all-read:hover {
+  background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+.notifications-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: var(--bg-light);
+}
+
+.notification-item.unread {
+  background-color: rgba(var(--primary-rgb), 0.05);
+}
+
+.notification-item.unread:hover {
+  background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(var(--primary-rgb), 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.notification-icon i {
+  color: var(--primary-color);
+  font-size: 16px;
+}
+
+.notification-content {
+  flex-grow: 1;
+}
+
+.notification-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.notification-message {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: block;
+}
+
+.empty-notifications {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-notifications i {
+  font-size: 32px;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+/* Estilos para notificaciones tipo venta */
+.notification-item.sale .notification-icon {
+  background-color: rgba(var(--success-rgb), 0.1);
+}
+
+.notification-item.sale .notification-icon i {
+  color: var(--success-color);
+}
+
+/* Estilos para notificaciones tipo inventario */
+.notification-item.inventory .notification-icon {
+  background-color: rgba(var(--warning-rgb), 0.1);
+}
+
+.notification-item.inventory .notification-icon i {
+  color: var(--warning-color);
+}
+
+/* Estilos para notificaciones tipo error */
+.notification-item.error .notification-icon {
+  background-color: rgba(var(--danger-rgb), 0.1);
+}
+
+.notification-item.error .notification-icon i {
+  color: var(--danger-color);
+}
+
+/* Animaciones */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Indicador de notificaciones */
+.notifications {
+  position: relative;
+  cursor: pointer;
+}
+
+.notifications .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--danger-color);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.notifications-menu.active {
+  max-height: 400px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.notifications-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.mark-all-read {
+  font-size: 12px;
+  color: var(--secondary-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+}
+
+.mark-all-read:hover {
+  background-color: var(--bg-lighter);
+}
+
+.notification-item {
+  padding: 10px;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  border-left: 3px solid transparent;
+  background-color: var(--bg-lighter);
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.notification-item:last-child {
+  margin-bottom: 0;
+}
+
+.notification-item:hover {
+  background-color: var(--bg-lightest);
+}
+
+.notification-item.unread {
+  border-left-color: var(--primary-color);
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.notification-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-white);
+  border-radius: 50%;
+  margin-right: 10px;
+  color: var(--primary-color);
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.notification-content {
+  flex-grow: 1;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 3px 0;
+}
+
+.notification-message {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.notification-time {
+  font-size: 11px;
+  color: var(--text-lighter);
+  margin-top: 3px;
+}
+
+.empty-notifications {
+  text-align: center;
+  padding: 20px 0;
+  color: var(--text-light);
+}
+
+.empty-notifications i {
+  font-size: 40px;
+  color: var(--text-lighter);
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* Animaciones */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Badge para la campana de notificaciones */
+.nav-icon .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--danger-color);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}
